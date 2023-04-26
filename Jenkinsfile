@@ -1,30 +1,34 @@
 pipeline {
     agent any
     tools{
-        maven 'maven_3_5_0'
+        maven '3_9_0'
     }
-    stages{
-        stage('Build Maven'){
-            steps{
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Java-Techie-jt/devops-automation']]])
-                sh 'mvn clean install'
-            }
-        }
-        stage('Build docker image'){
-            steps{
-                script{
-                    sh 'docker build -t javatechie/devops-integration .'
+    tools{
+           maven '3_9_1'
+       }
+        stages{
+            stage('build'){
+                steps{
+                    checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/19bce126MemariyaChirag/docker-javatec']])
+                    sh 'mvn clean install'
                 }
             }
-        }
+            stage('build docker image'){
+                steps{
+                    script{
+                        sh 'docker build -t memariyachirag126/devops-integration . '
+                    }
+                }
+            }
         stage('Push image to Hub'){
             steps{
                 script{
-                   withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                   sh 'docker login -u javatechie -p ${dockerhubpwd}'
+                    withCredentials([string(credentialsId: 'docker-hub-2', variable: 'docker-hub-2')]) {
+//                     withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
+                   sh 'docker login -u memariyachirag126 -p ${docker-hub-2}'
 
 }
-                   sh 'docker push javatechie/devops-integration'
+                   sh 'docker push memariyachirag126/devops-integration'
                 }
             }
         }
